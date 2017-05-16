@@ -3,11 +3,25 @@
  */
 window.onload = function () {
     drawRect();
+    addChessClick();
 }
+
+function getEventPosition(ev){
+    var x, y;
+    if (ev.layerX || ev.layerX == 0) {
+        x = ev.layerX;
+        y = ev.layerY;
+    } else if (ev.offsetX || ev.offsetX == 0) { // Opera
+        x = ev.offsetX;
+        y = ev.offsetY;
+    }
+    return {x: x, y: y};
+}
+
 function drawRect() {
     //创建棋盘背景
-    canvas = document.getElementById("GoBangCanvas");
-    context = canvas.getContext("2d");
+    var canvas = document.getElementById("GoBangCanvas");
+    var context = canvas.getContext("2d");
     context.fillStyle = '#ebddb8';
     context.fillRect(0, 0, 1200, 768);
     //标题
@@ -85,4 +99,29 @@ function drawRect() {
     context.fill();
     context.closePath();
     context.stroke();
+}
+var num = 0;
+function addChessClick() {
+    var canvas = document.getElementById("GoBangCanvas");
+    var context = canvas.getContext("2d");
+    canvas.addEventListener('click', function(e){
+        var pos = getEventPosition(e);
+        $.ajax({
+            url:"/GobangService/src/ChessPoint",
+            type:'POST',
+            dataType: 'jsonp',
+            data:{
+                point:pos,
+                color:num%2
+            },
+            jsonp: "callbackparam",
+            success: function (data) {
+                if (data.code == "1000") {
+                    alert("success");
+                }else {
+                    alert(data.message);
+                }
+            }
+        });
+    }, false);
 }
